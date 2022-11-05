@@ -38,30 +38,38 @@ async function copyAssets(src, newDir) {
 };
 copyAssets(assets, newAssets);
 
-async function deleteAssets() {
-    const dataSrc = await fsPromises.readdir(assets, { withFileTypes: true });
-    const dataDest = await fsPromises.readdir(newAssets, { withFileTypes: true });
-    dataDest.forEach(file => {
-        if (file.isDirectory() === true) removeAssets(file.name);
-    });
+async function deleteAssets(src, dest) {
+    const dataSrc = await fsPromises.readdir(src, { withFileTypes: true });
+    const dataDest = await fsPromises.readdir(dest, { withFileTypes: true });
 
-    async function removeAssets(dir) {
-        const oldData = await fsPromises.readdir(path.join(assets, dir));
-        const newData = await fsPromises.readdir(path.join(newAssets, dir));
-        if (oldData.length < newData.length) {
-            newData.forEach(file => {
-                fs.access(path.join(assets, dir, file), fs.F_OK, err => {
+    dataDest.forEach(function(file) {
+        if (file.isFile()) {
+            if (dataSrc.length < dataDest.length) {
+                fs.access(path.join(src, file.name), fs.F_OK, err => {
                     if (err) {
-                        fs.rm(path.join(newAssets, dir, file), err => {
+                        fs.rm(path.join(dest, file.name), err => {
                             if (err) throw err;
                         });
                     };
                 });
+            };
+        };
+        if (file.isDirectory()) {
+            let newSrc = path.join(src, file.name);
+            let newDest = path.join(dest, file.name);
+            fs.access(newSrc, fs.F_OK, err => {
+                if (err) {
+                    fs.rm(newDest, { recursive: true }, err => {
+                        if (err) throw err;
+                    });
+                } else {
+                    deleteAssets(path.join(src, file.name), path.join(dest, file.name));
+                }
             });
         };
-    };
+    })
 }
-deleteAssets();
+deleteAssets(assets, newAssets);
 
 async function bundleStyles() {
     try {
