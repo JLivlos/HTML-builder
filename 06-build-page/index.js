@@ -44,15 +44,13 @@ async function deleteAssets(src, dest) {
 
     dataDest.forEach(function(file) {
         if (file.isFile()) {
-            if (dataSrc.length < dataDest.length) {
-                fs.access(path.join(src, file.name), fs.F_OK, err => {
-                    if (err) {
-                        fs.rm(path.join(dest, file.name), err => {
-                            if (err) throw err;
-                        });
-                    };
-                });
-            };
+            fs.access(path.join(src, file.name), fs.F_OK, err => {
+                if (err) {
+                    fs.rm(path.join(dest, file.name), err => {
+                        if (err) throw err;
+                    });
+                };
+            });
         };
         if (file.isDirectory()) {
             let newSrc = path.join(src, file.name);
@@ -90,7 +88,7 @@ async function bundleStyles() {
                 stream.on('end', () => {
                     fs.appendFile(
                         path.join(dest, 'style.css'),
-                        data,
+                        `${data}\n`,
                         err => {
                             if (err) throw err;
                         }

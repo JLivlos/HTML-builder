@@ -25,7 +25,7 @@ async function writeStyles() {
                 stream.on('end', () => {
                     fs.appendFile(
                         bundlePath,
-                        data,
+                        `${data}\n`,
                         err => {
                             if (err) throw err;
                         }
