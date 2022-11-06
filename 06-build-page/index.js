@@ -112,21 +112,19 @@ async function createHtml() {
             if (path.extname(e) === '.html') htmlComponents.push(e);
         })
 
-        htmlComponents.forEach(function(file, index) {
+        htmlComponents.forEach(function(file) {
             if (path.extname(file) === '.html') {
                 const name = file.split('.').slice(0, -1).join('.');
                 async function getTemplates() {
                     let data = await fsPromises.readFile(path.join(components, file), 'utf-8');
                     dataIndex = dataIndex.replaceAll(`{{${name}}}`, data);
-                    if (index === htmlComponents.length - 1) {
-                        fs.writeFile(
-                            path.join(dest, 'index.html'),
-                            dataIndex,
-                            (err) => {
-                                if (err) throw err;
-                            }
-                        );
-                    };
+                    fs.writeFile(
+                        path.join(dest, 'index.html'),
+                        dataIndex,
+                        (err) => {
+                            if (err) throw err;
+                        }
+                    );
                 }
                 getTemplates();
             };
